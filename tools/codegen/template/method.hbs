@@ -1,0 +1,61 @@
+/**
+* {{&summary}}
+* request: {{&path}}
+* method: {{&method}}
+{{#parameters}}
+    {{^isSingleton}} * @param {{&camelCaseName}} - {{&description}}{{/isSingleton}}
+{{/parameters}}
+{{#isGET}}
+* eg.
+{{/isGET}}
+*/
+export const {{&methodName}} = function({{&methodParamsStr}}) {
+    let path = '{{&path}}';
+{{#parameters}}
+    {{#isQueryParameter}}
+        {{#required}}
+            if(queryParams['{{&camelCaseName}}'] === undefined) {
+                return Promise.reject(new Error('Missing required {{&paramType}} parameter: {{&camelCaseName}}'))
+            }
+        {{/required}}
+    {{/isQueryParameter}}
+
+    {{#isPathParameter}}
+        path = path.replace('{{brackets name}}', {{&camelCaseName}})
+    {{/isPathParameter}}
+
+    {{#isBodyParameter}}
+        {{#required}}
+            if(bodyParams['{{&camelCaseName}}'] === undefined) {
+                return Promise.reject(new Error('Missing required {{&paramType}} parameter: {{&camelCaseName}}'))
+            }
+        {{/required}}
+    {{/isBodyParameter}}
+    
+    {{#isFormParameter}}
+         {{#required}}
+            if(bodyParams['{{&camelCaseName}}'] === undefined) {
+                return Promise.reject(new Error('Missing required {{&paramType}} parameter: {{&camelCaseName}}'))
+            }
+        {{/required}}
+    {{/isFormParameter}}
+
+{{/parameters}}
+  return request({
+    url: path,
+    method: '{{&method}}',
+{{#if isHaveQuery}}
+    params: queryParams,
+{{/if}}
+{{#if isHaveBody}}
+    data: bodyParams,
+{{/if}}
+{{#if isHaveFormData}}
+    data: bodyParams,
+    headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    //'Content-Type': 'application/multipart/form-data'
+  }
+{{/if}}
+  })
+}
